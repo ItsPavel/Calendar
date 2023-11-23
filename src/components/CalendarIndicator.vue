@@ -1,16 +1,24 @@
 <template>
   <div class="calendar__indicator">
     <div class="indicator__items">
-      <fa-icons @click="getPreviousDate" :icon="'arrow-left'" class="arrow" />
+      <the-button @click="getPreviousDate">
+        <fa-icons :icon="'arrow-left'" class="arrow" />
+      </the-button>
       <b class="indicator__date">{{ selectDate }} </b>
-      <fa-icons @click="getNextDate" :icon="'arrow-right'" class="arrow" />
+      <the-button @click="getNextDate">
+        <fa-icons :icon="'arrow-right'" class="arrow" />
+      </the-button>
     </div>
   </div>
 </template>
 
 <script>
 import dayjs from "dayjs";
+import TheButton from "./UI/TheButton.vue";
 export default {
+  components: {
+    TheButton,
+  },
   props: {
     selectedDate: {
       type: Object,
@@ -46,6 +54,6 @@ export default {
   margin-bottom: 25px;
 }
 .arrow {
-  cursor: pointer;
+  color: #fff;
 }
 </style>

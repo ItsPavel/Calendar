@@ -1,14 +1,20 @@
 <template>
-  <div class="calendar__selector">
-    <span @click="getCurrentDate"
-      >Today: <b>{{ currentDate }}</b></span
-    >
-  </div>
+  <the-button @click="getCurrentDate">
+    <div class="calendar__selector">
+      <span
+        >Today: <b>{{ currentDate }}</b></span
+      >
+    </div>
+  </the-button>
 </template>
 
 <script>
+import TheButton from "./UI/TheButton.vue";
 import dayjs from "dayjs";
 export default {
+  components: {
+    TheButton,
+  },
   props: {
     currentDate: {
       type: String,
@@ -29,7 +35,7 @@ export default {
   background: #1b1f21;
   padding: 10px 40px;
   border-radius: 12px;
-  cursor: pointer;
+  color: #fff;
 }
 span {
   margin: 20px;

@@ -1,21 +1,36 @@
 <template>
   <div class="calendar">
-    <header class="calendar__header">
-      <calendar-indicator :selectedDate="date" @selectDate="setSelectedDate" />
-      <calendar-selector :currentDate="today" @selectDate="setSelectedDate" />
-    </header>
-    <main class="calendar__main">
-      <calendar-weekdays />
-      <ul class="calendar__month">
-        <calendar-day-item
-          v-for="(day, i) in days"
-          :key="i"
-          :day="day.date"
-          :isCurrentmonth="day.isCurrentmonth"
-          :currentDate="today"
+    <div class="calendar__date">
+      <header class="calendar__header">
+        <calendar-indicator
+          :selectedDate="date"
+          @selectDate="setSelectedDate"
         />
-      </ul>
-    </main>
+        <calendar-selector :currentDate="today" @selectDate="setSelectedDate" />
+      </header>
+      <main class="calendar__main">
+        <calendar-weekdays />
+        <ul class="calendar__month">
+          <calendar-day-item
+            v-for="day in days"
+            :key="day.id"
+            :day="day.date"
+            :lengthTask="day.tasks?.length"
+            :isOpen="day.isOpenTask"
+            :isCurrentmonth="day.isCurrentmonth"
+            :currentDate="today"
+            @openTaskBlock="openTask(day)"
+          />
+        </ul>
+      </main>
+    </div>
+    <calendar-task
+      :selectedDateForTasks="selectedDateForTasks"
+      @addTask="addTask"
+      @deleteTask="deleteTask"
+      @close="closeTasksPanel"
+      v-show="isOpenTasksPanel"
+    />
   </div>
 </template>
 
@@ -24,10 +39,11 @@ import dayjs from "dayjs";
 import weekday from "dayjs/plugin/weekday";
 dayjs.extend(weekday);
 
-import CalendarIndicator from "./components/CalendarIndicator.vue";
-import CalendarSelector from "./components/CalendarSelector.vue";
-import CalendarWeekdays from "./components/CalendarWeekdays.vue";
-import CalendarDayItem from "./components/CalendarDayItem.vue";
+import CalendarIndicator from "@/components/CalendarIndicator.vue";
+import CalendarSelector from "@/components/CalendarSelector.vue";
+import CalendarWeekdays from "@/components/CalendarWeekdays.vue";
+import CalendarDayItem from "@/components/CalendarDayItem.vue";
+import CalendarTask from "@/components/CalendarTask.vue";
 
 export default {
   components: {
@@ -35,20 +51,39 @@ export default {
     CalendarSelector,
     CalendarWeekdays,
     CalendarDayItem,
+    CalendarTask,
   },
   data() {
     return {
       date: dayjs(),
+      selectedDateForTasks: [],
+      isOpenTasksPanel: false,
     };
   },
 
   methods: {
     setSelectedDate(newDate) {
       this.date = newDate;
-      this.days = [];
+      this.closeTasksPanel();
     },
     getFirstWeeekDay(date) {
       return Number(dayjs(date).weekday());
+    },
+    openTask(day) {
+      this.selectedDateForTasks = day;
+      this.isOpenTasksPanel = true;
+    },
+    addTask(value) {
+      this.selectedDateForTasks.tasks.push(value);
+      this.$forceUpdate();
+    },
+    deleteTask(idx) {
+      console.log(idx);
+      this.selectedDateForTasks.tasks.splice(idx, 1);
+      this.$forceUpdate();
+    },
+    closeTasksPanel() {
+      this.isOpenTasksPanel = false;
     },
   },
   computed: {
@@ -80,6 +115,8 @@ export default {
             "YYYY-MM-DD"
           ),
           isCurrentmonth: true,
+          id: Math.random(),
+          tasks: [],
         };
       });
     },
@@ -105,6 +142,7 @@ export default {
             }`
           ).format("YYYY-MM-DD"),
           isCurrentmonth: false,
+          id: Math.random(),
         };
       });
     },
@@ -123,6 +161,7 @@ export default {
               `${nextMonth.year()}-${nextMonth.month() + 1}-${i + 1}`
             ).format("YYYY-MM-DD"),
             isCurrentmonth: false,
+            id: Math.random(),
           };
         });
       } else {
@@ -134,14 +173,6 @@ export default {
 </script>
 
 <style>
-body {
-  font-family: "IBM Plex Sans", sans-serif;
-}
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
 .calendar {
   position: relative;
   background: #1d252c;
@@ -149,7 +180,7 @@ ul {
   border-radius: 20px;
   padding: 20px;
   margin: 80px auto;
-  max-width: 1000px;
+  max-width: 900px;
   box-shadow: 7px 7px 22px 8px rgba(14, 24, 31, 0.76);
 }
 .calendar__header {
@@ -162,5 +193,8 @@ ul {
 .calendar__month {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
+}
+.calendar__tasks {
+  height: 300px;
 }
 </style>
